@@ -1,0 +1,55 @@
+name: Compile pycdc for windows
+on: workflow_dispatch
+
+jobs:
+  cross-compile:
+    runs-on: ubuntu-20.04
+      
+    steps:
+      - name: Install mingw-w64
+        run: |
+          sudo apt update
+          sudo apt install -y mingw-w64
+
+      - name: Clone pycdc
+        run: git clone --depth=1 https://github.com/zrax/pycdc
+
+      - name: Compile
+        run: >
+          cd pycdc
+          
+          echo "RELEASE_COMMIT=$(git log -1 --format=%h)" >> ${GITHUB_ENV}
+
+          cmake -DCMAKE_SYSTEM_NAME=Windows
+          -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc
+          -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++
+          -DCMAKE_FIND_ROOT_PATH=/usr/i686-w64-mingw32
+          -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+          -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY
+          -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER
+          -DCMAKE_CXX_STANDARD_LIBRARIES="-static-libgcc -static-libstdc++"
+          .
+          
+          make
+
+      - name: Set release date & time
+        run: |
+          echo "RELEASE_DATE=$(date -u +%d-%b-%Y)" >> ${GITHUB_ENV}
+          echo "RELEASE_TIME=$(date -u +%H:%M)" >> ${GITHUB_ENV}
+
+#       - name: Upload artifact
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: pycdc
+#           path: |
+#             pycdc/pycdc.exe
+#             pycdc/pycdas.exe
+            
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: pycdc-build-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
+          tag: pycdc-build-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
+          body: Compiled on ${{ env.RELEASE_DATE }} at ${{ env.RELEASE_TIME }} GMT, pycdc commit ${{ env.RELEASE_COMMIT }}
+          artifacts: "pycdc/pycdc.exe,pycdc/pycdas.exe"
+          token: ${{ secrets.GITHUB_TOKEN }}
