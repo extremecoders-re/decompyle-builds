@@ -1,4 +1,4 @@
-# decompyle-winbuilds
+# Decompyle++ winbuilds
 
 Decompyle++ is a python byte-code Disassembler/Decompiler written in C++. The project can be found at https://github.com/zrax/pycdc
 
