@@ -48,8 +48,8 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          name: decompyle++-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
-          tag: decompyle++-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
+          name: Decompyle++ ${{ env.RELEASE_DATE }}
+          tag: build-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
           body: Compiled on ${{ env.RELEASE_DATE }} at ${{ env.RELEASE_TIME }} GMT, pycdc commit ${{ env.RELEASE_COMMIT }}
           artifacts: "pycdc/pycdc.exe,pycdc/pycdas.exe"
           token: ${{ secrets.GITHUB_TOKEN }}
