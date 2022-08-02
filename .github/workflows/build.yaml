@@ -53,3 +53,5 @@ jobs:
           body: Compiled on ${{ env.RELEASE_DATE }} at ${{ env.RELEASE_TIME }} GMT, pycdc commit ${{ env.RELEASE_COMMIT }}
           artifacts: "pycdc/pycdc.exe,pycdc/pycdas.exe"
           token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          draft: true
