@@ -5,4 +5,4 @@ Decompyle++ is a python byte-code Disassembler/Decompiler written in C++. The pr
 This repository contains an action script to cross-compile the latest version of Decompyle++ (pycdc) for Windows. You can grab the binaries from releases.
 
 
-Latest build: pycdc commit 44a730f
+Latest build: pycdc commit 2075a4a
