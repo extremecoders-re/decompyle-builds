@@ -1,9 +1,9 @@
-name: Compile pycdc for windows
+name: Compile pycdc for Windows & Linux
 on: workflow_dispatch
 
 jobs:
-  cross-compile:
-    runs-on: ubuntu-20.04
+  build-job:
+    runs-on: ubuntu-22.04
       
     steps:
       - name: Install mingw-w64
@@ -45,13 +45,43 @@ jobs:
 #             pycdc/pycdc.exe
 #             pycdc/pycdas.exe
             
-      - name: Create Release
+      - name: Create release Windows
         uses: ncipollo/release-action@v1
         with:
           name: Decompyle++ ${{ env.RELEASE_DATE }}
           tag: build-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
           body: Compiled on ${{ env.RELEASE_DATE }} at ${{ env.RELEASE_TIME }} GMT, pycdc commit ${{ env.RELEASE_COMMIT }}
           artifacts: "pycdc/pycdc.exe,pycdc/pycdas.exe"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          draft: true
+
+
+      - name: Setup latest Alpine Linux
+        uses: jirutka/setup-alpine@v1
+        with:
+          packages: >
+            alpine-sdk
+            cmake
+            python3
+        
+      - name: Compile for Linux        
+        run: |
+          cd pycdc
+          git clean -d -f -x
+          sed -i '/target_link_libraries(pycdc pycxx)/c target_link_libraries(pycdc pycxx -static)' CMakeLists.txt
+          cmake .
+          make
+        shell: alpine.sh {0}
+        
+        
+      - name: Create release Linux
+        uses: ncipollo/release-action@v1
+        with:
+          name: Decompyle++ ${{ env.RELEASE_DATE }}
+          tag: build-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
+          body: Compiled on ${{ env.RELEASE_DATE }} at ${{ env.RELEASE_TIME }} GMT, pycdc commit ${{ env.RELEASE_COMMIT }}
+          artifacts: "pycdc/pycdc,pycdc/pycdas"
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           draft: true
