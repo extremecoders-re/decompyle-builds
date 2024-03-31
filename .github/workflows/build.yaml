@@ -57,7 +57,7 @@ jobs:
           draft: true
 
 
-      - name: Setup latest Alpine Linux
+      - name: Setup latest Alpine Linux x86_64
         uses: jirutka/setup-alpine@v1
         with:
           packages: >
@@ -65,7 +65,7 @@ jobs:
             cmake
             python3
         
-      - name: Compile for Linux        
+      - name: Compile for Linux x86_64       
         run: |
           cd pycdc
           git clean -d -f -x
@@ -73,16 +73,49 @@ jobs:
           sed -i '/target_link_libraries(pycdc pycxx)/c target_link_libraries(pycdc pycxx -static)' CMakeLists.txt
           cmake .
           make
+          mv pycdc pycdc.x86_64
+          mv pycdas pycdas.x86_64
         shell: alpine.sh {0}
-        
-        
-      - name: Create release Linux
+
+      - name: Create release Linux x86_64
         uses: ncipollo/release-action@v1
         with:
           name: Decompyle++ ${{ env.RELEASE_DATE }}
           tag: build-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
           body: Compiled on ${{ env.RELEASE_DATE }} at ${{ env.RELEASE_TIME }} GMT, pycdc commit ${{ env.RELEASE_COMMIT }}
-          artifacts: "pycdc/pycdc,pycdc/pycdas"
+          artifacts: "pycdc/pycdc.x86_64,pycdc/pycdas.x86_64"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          draft: true
+
+      - name: Setup latest Alpine Linux aarch64
+        uses: jirutka/setup-alpine@v1        
+        with:
+          arch: aarch64
+          packages: >
+            alpine-sdk
+            cmake
+            python3
+
+      - name: Compile for Linux AArch64       
+        run: |
+          cd pycdc
+          git clean -d -f -x
+          sed -i '/target_link_libraries(pycdas pycxx)/c target_link_libraries(pycdas pycxx -static)' CMakeLists.txt
+          sed -i '/target_link_libraries(pycdc pycxx)/c target_link_libraries(pycdc pycxx -static)' CMakeLists.txt
+          cmake .
+          make
+          mv pycdc pycdc.aarch64
+          mv pycdas pycdas.aarch64
+        shell: alpine.sh {0}        
+
+      - name: Create release Linux aarch64
+        uses: ncipollo/release-action@v1
+        with:
+          name: Decompyle++ ${{ env.RELEASE_DATE }}
+          tag: build-${{ env.RELEASE_DATE }}-${{ env.RELEASE_COMMIT }}
+          body: Compiled on ${{ env.RELEASE_DATE }} at ${{ env.RELEASE_TIME }} GMT, pycdc commit ${{ env.RELEASE_COMMIT }}
+          artifacts: "pycdc/pycdc.aarch64,pycdc/pycdas.aarch64"
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true
           draft: true
